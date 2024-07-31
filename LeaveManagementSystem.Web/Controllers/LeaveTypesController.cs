@@ -15,6 +15,7 @@ namespace LeaveManagementSystem.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private const string NameExistsValidationMessage = "Leave Type already exists";
 
         public LeaveTypesController(ApplicationDbContext context, IMapper mapper)
         {
@@ -83,7 +84,10 @@ namespace LeaveManagementSystem.Web.Controllers
         {
             //adding custom validation and model state error
             //prevent duplicates
-            CheckIfLeaveTypeNameExists(leaveTypeCreate.Name);
+            if (await CheckIfLeaveTypeNameExists(leaveTypeCreate.Name))
+            {
+                ModelState.AddModelError(nameof(leaveTypeCreate.Name), NameExistsValidationMessage);
+            }
             //if(leaveTypeCreate.Name.Contains("vacation"))
             //{
             //    ModelState.AddModelError(nameof(leaveTypeCreate.Name), "Name cannot contain vacation");
@@ -99,11 +103,6 @@ namespace LeaveManagementSystem.Web.Controllers
             }
             return View(leaveTypeCreate);
             //return View(leaveType);
-        }
-
-        private bool CheckIfLeaveTypeNameExists(string name)
-        {
-            return _context.LeaveTypes.Any(q => q.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         // GET: LeaveTypes/Edit/5
@@ -138,6 +137,13 @@ namespace LeaveManagementSystem.Web.Controllers
             if (id != leaveTypeEdit.Id)
             {
                 return NotFound();
+            }
+
+            //adding custom validation and model state error
+            //prevent duplicates
+            if (await CheckIfLeaveTypeNameExistsForEdit(leaveTypeEdit))
+            {
+                ModelState.AddModelError(nameof(leaveTypeEdit.Name), NameExistsValidationMessage);
             }
 
             if (ModelState.IsValid)
@@ -203,6 +209,19 @@ namespace LeaveManagementSystem.Web.Controllers
         private bool LeaveTypeExists(int id)
         {
             return _context.LeaveTypes.Any(e => e.Id == id);
+        }
+
+        private async Task<bool> CheckIfLeaveTypeNameExists(string name)
+        {
+            return await _context.LeaveTypes.AnyAsync(q => q.Name.ToLower().Equals(name.ToLower()));
+            //return _context.LeaveTypes.Any(q => q.Name.ToLower().Equals(name.ToLower()));
+            //return _context.LeaveTypes.Any(q => q.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)); //currently problematic
+        }
+
+        private async Task<bool> CheckIfLeaveTypeNameExistsForEdit(LeaveTypeEditVM leaveTypeEdit)
+        {
+            return await _context.LeaveTypes.AnyAsync(q => q.Name.ToLower().Equals(leaveTypeEdit.Name.ToLower())
+                && q.Id != leaveTypeEdit.Id);
         }
     }
 }
