@@ -7,7 +7,7 @@ namespace LeaveManagementSystem.Web.Data
     {
         public  int Id { get; set; }
         [Column(TypeName = "nvarchar(150)")] //or [MaxLength(150)]
-        public  string Name { get; set; }
+        public  string Name { get; set; } = string.Empty;
         public  int NumberOfDays { get; set; }
     }
 }

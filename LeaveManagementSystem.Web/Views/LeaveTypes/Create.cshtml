@@ -1,5 +1,7 @@
-﻿@model LeaveManagementSystem.Web.Data.LeaveType
-
+﻿@*
+     @model LeaveManagementSystem.Web.Data.LeaveType
+*@
+@model LeaveTypeCreateVM
 @{
     //ViewData["Title"] = "Create";
     ViewData["Title"] = "Create Leave Type";
@@ -20,10 +22,14 @@
             </div>
             <br />
             <div class="form-group">
-                <label asp-for="NumberOfDays" class="control-label"></label>
-                <input asp-for="NumberOfDays" class="form-control" />
-                <span asp-validation-for="NumberOfDays" class="text-danger"></span>
+                <label asp-for="Days" class="control-label"></label>
+                <input asp-for="Days" class="form-control" />
+                <span asp-validation-for="Days" class="text-danger"></span>
+                <!-- <label asp-for="NumberOfDays" class="control-label"></label> -->
+                <!-- <input asp-for="NumberOfDays" class="form-control" /> -->
+                <!-- <span asp-validation-for="NumberOfDays" class="text-danger"></span> -->
             </div>
+            <input type="hidden" name="Id" value="12"/><!-- -->
             <br />
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-success" />
@@ -38,6 +44,7 @@
     <!-- <a asp-action="Index">Back to List</a> -->
 </div>
 
-@section Scripts {
+@* @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+ *@
