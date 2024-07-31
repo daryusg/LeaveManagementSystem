@@ -7,10 +7,10 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 namespace LeaveManagementSystem.Web.Services;
 
-public class LeaveTypesService(ApplicationDbContext context, IMapper mapper) : ILeaveTypesService
+public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) : ILeaveTypesService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    //private readonly ApplicationDbContext _context = context;
+    //private readonly IMapper _mapper = mapper;
 
     //public LeaveTypesService(ApplicationDbContext context, IMapper mapper)
     //{
@@ -73,19 +73,19 @@ public class LeaveTypesService(ApplicationDbContext context, IMapper mapper) : I
     }
 
 
-    private bool LeaveTypeExists(int id)
+    public bool LeaveTypeExists(int id)
     {
         return _context.LeaveTypes.Any(e => e.Id == id);
     }
 
-    private async Task<bool> CheckIfLeaveTypeNameExistsAsync(string name)
+    public async Task<bool> CheckIfLeaveTypeNameExistsAsync(string name)
     {
         return await _context.LeaveTypes.AnyAsync(q => q.Name.ToLower().Equals(name.ToLower()));
         //return _context.LeaveTypes.Any(q => q.Name.ToLower().Equals(name.ToLower()));
         //return _context.LeaveTypes.Any(q => q.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)); //currently problematic
     }
 
-    private async Task<bool> CheckIfLeaveTypeNameExistsForEditAsync(LeaveTypeEditVM leaveTypeEdit)
+    public async Task<bool> CheckIfLeaveTypeNameExistsForEditAsync(LeaveTypeEditVM leaveTypeEdit)
     {
         return await _context.LeaveTypes.AnyAsync(q => q.Name.ToLower().Equals(leaveTypeEdit.Name.ToLower())
             && q.Id != leaveTypeEdit.Id);

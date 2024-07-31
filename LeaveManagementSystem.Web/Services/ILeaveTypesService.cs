@@ -9,5 +9,8 @@ namespace LeaveManagementSystem.Web.Services
         Task<T?> GetAsync<T>(int id) where T : class;
         Task<List<LeaveTypeReadOnlyVM>> GetAllAsync();
         Task RemoveAsync(int id);
+        Task<bool> CheckIfLeaveTypeNameExistsAsync(string name);
+        Task<bool> CheckIfLeaveTypeNameExistsForEditAsync(LeaveTypeEditVM leaveTypeEdit);
+        bool LeaveTypeExists(int id);
     }
 }
