@@ -81,6 +81,14 @@ namespace LeaveManagementSystem.Web.Controllers
         public async Task<IActionResult> Create(LeaveTypeCreateVM leaveTypeCreate)
         //public async Task<IActionResult> Create([Bind("Id,Name,NumberOfDays")] LeaveType leaveType)
         {
+            //adding custom validation and model state error
+            //prevent duplicates
+            CheckIfLeaveTypeNameExists(leaveTypeCreate.Name);
+            //if(leaveTypeCreate.Name.Contains("vacation"))
+            //{
+            //    ModelState.AddModelError(nameof(leaveTypeCreate.Name), "Name cannot contain vacation");
+            //}
+
             if (ModelState.IsValid)
             {
                 var leaveType = _mapper.Map<LeaveType>(leaveTypeCreate);
@@ -91,6 +99,11 @@ namespace LeaveManagementSystem.Web.Controllers
             }
             return View(leaveTypeCreate);
             //return View(leaveType);
+        }
+
+        private bool CheckIfLeaveTypeNameExists(string name)
+        {
+            return _context.LeaveTypes.Any(q => q.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         // GET: LeaveTypes/Edit/5
@@ -108,7 +121,7 @@ namespace LeaveManagementSystem.Web.Controllers
                 return NotFound();
             }
 
-            var viewData = _mapper.Map<LeaveTypeReadOnlyVM>(leaveType);
+            var viewData = _mapper.Map<LeaveTypeEditVM>(leaveType);
 
             return View(viewData);
             //return View(leaveType);
@@ -119,7 +132,7 @@ namespace LeaveManagementSystem.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, LeaveTypeReadOnlyVM leaveTypeEdit)
+        public async Task<IActionResult> Edit(int id, LeaveTypeEditVM leaveTypeEdit)
         //public async Task<IActionResult> Edit(int id, [Bind("Id,Name,NumberOfDays")] LeaveType leaveType)
         {
             if (id != leaveTypeEdit.Id)
@@ -167,7 +180,9 @@ namespace LeaveManagementSystem.Web.Controllers
                 return NotFound();
             }
 
-            return View(leaveType);
+            var viewData = _mapper.Map<LeaveTypeReadOnlyVM>(leaveType);
+            return View(viewData);
+            //return View(leaveType);
         }
 
         // POST: LeaveTypes/Delete/5

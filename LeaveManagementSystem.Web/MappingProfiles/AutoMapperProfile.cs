@@ -9,14 +9,17 @@ namespace LeaveManagementSystem.Web.MappingProfiles
         public AutoMapperProfile() {
             //CreateMap<LeaveType, IndexVM>();
             CreateMap<LeaveType, LeaveTypeReadOnlyVM>()
-                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.NumberOfDays));
-            CreateMap<LeaveTypeReadOnlyVM, LeaveType>()
-                .ForMember(dest => dest.NumberOfDays, opt => opt.MapFrom(src => src.Days));
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.NumberOfDays)).ReverseMap();
+            //CreateMap<LeaveTypeReadOnlyVM, LeaveType>()
+            //    .ForMember(dest => dest.NumberOfDays, opt => opt.MapFrom(src => src.Days));
 
-            CreateMap<LeaveTypeCreateVM, LeaveType>()
-                .ForMember(dest => dest.NumberOfDays, opt => opt.MapFrom(src => src.Days));
+            CreateMap<LeaveType, LeaveTypeEditVM>()
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.NumberOfDays)).ReverseMap();
+
             CreateMap<LeaveType, LeaveTypeCreateVM>()
-                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.NumberOfDays));
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.NumberOfDays)).ReverseMap();
+            //CreateMap<LeaveType, LeaveTypeCreateVM>()
+            //    .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.NumberOfDays));
         }
     }
 }
