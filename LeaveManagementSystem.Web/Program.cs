@@ -1,6 +1,5 @@
-using LeaveManagementSystem.Web.Data;
 using LeaveManagementSystem.Web.Services;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -15,10 +14,13 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>(); //90
+builder.Services.AddTransient<IEmailSender, EmailSender>(); //109
 //
 //
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicatiionUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>() /* <---inserted */
     .AddEntityFrameworkStores<ApplicationDbContext>();
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
