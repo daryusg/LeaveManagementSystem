@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LeaveManagementSystem.Web.Data
 {
-    public class LeaveType
+    public class LeaveType : BaseEntity
     {
-        public  int Id { get; set; }
         [Column(TypeName = "nvarchar(150)")] //or [MaxLength(150)]
         public  string Name { get; set; } = string.Empty;
         [Display(Name = "Number of days")]

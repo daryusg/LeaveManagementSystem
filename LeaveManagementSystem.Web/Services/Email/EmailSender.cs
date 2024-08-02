@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net.Mail;
 
-namespace LeaveManagementSystem.Web.Services
+namespace LeaveManagementSystem.Web.Services.Email
 {
     public class EmailSender(IConfiguration _configuration) : IEmailSender
     {
@@ -21,7 +21,7 @@ namespace LeaveManagementSystem.Web.Services
             message.To.Add(new MailAddress(email));
 
             using var client = new SmtpClient(smtpServer, smtpPort);
-            await client.SendMailAsync(message);  
+            await client.SendMailAsync(message);
         }
     }
 }

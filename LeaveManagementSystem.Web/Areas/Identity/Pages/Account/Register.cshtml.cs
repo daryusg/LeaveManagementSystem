@@ -26,6 +26,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicatiionUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILeaveAllocationsService _leaveAllocationService;
         private readonly UserManager<ApplicatiionUser> _userManager;
         private readonly IUserStore<ApplicatiionUser> _userStore;
         private readonly IUserEmailStore<ApplicatiionUser> _emailStore;
@@ -33,6 +34,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
+            ILeaveAllocationsService leaveAllocationService,
             UserManager<ApplicatiionUser> userManager,
             IUserStore<ApplicatiionUser> userStore,
             SignInManager<ApplicatiionUser> signInManager,
@@ -40,6 +42,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
+            this._leaveAllocationService = leaveAllocationService;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
@@ -171,6 +174,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                     //
                     //
                     var userId = await _userManager.GetUserIdAsync(user);
+                    await _leaveAllocationService.AllocateLeave(userId); //124
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(

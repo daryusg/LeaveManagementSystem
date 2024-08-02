@@ -1,7 +1,9 @@
-using LeaveManagementSystem.Web.Services;
+using LeaveManagementSystem.Web.Services.Email;
+using LeaveManagementSystem.Web.Services.LeaveTypes;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using LeaveManagementSystem.Web.Services.LeaveAllocations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +12,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddHttpContextAccessor(); //126
 //
 //
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>(); //90
+builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>(); //122
 builder.Services.AddTransient<IEmailSender, EmailSender>(); //109
 //
 //
