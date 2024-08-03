@@ -7,7 +7,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 {
     public class LeaveAllocationsService(ApplicationDbContext _context, IHttpContextAccessor _httpContextAccessor, UserManager<ApplicatiionUser> _userManager, IMapper _mapper) : ILeaveAllocationsService
     {
-        public async Task AllocateLeave(string employeeId)
+        public async Task AllocateLeaveAsync(string employeeId)
         {
             //get all the unallocated leave types (?? how does sick work? also, how do we allocate multiples holidays?
             //var leaveTypes = await _context.LeaveTypes.ToListAsync();
@@ -39,6 +39,11 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             await _context.SaveChangesAsync();
         }
 
+        public Task EditAllocationAsync(LeaveAllocationEditVM allocationEditVM)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<LeaveAllocation>> GetAllocatiionsAsync(string? employeeId)
         {
             if (string.IsNullOrEmpty(employeeId))
@@ -60,6 +65,17 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
                 .ToListAsync();
 
             return leaveAllocations;
+        }
+
+        public async Task<LeaveAllocationVM> GetEmployeeAllocationAsync(int allocationId)
+        {
+            var allocation = _context.LeaveAllocations
+                .Include(q => q.LeaveType)
+                .Include(q => q.Employee)
+                .FirstOrDefault(q => q.Id == allocationId);
+
+            var model = _mapper.Map<LeaveAllocationEditVM>(allocation);
+            return model;
         }
 
         public async Task<EmployeeAllocationVM> GetEmployeeAllocationsAsync(string? employeeId)
@@ -92,7 +108,6 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 
             return _mapper.Map<List<EmployeeListVM>>(users);
         }
-
         //----------------------------------------------------------------------
 
         //works, but less efficiently than the "var leaveTypes..." lambda expression (see above)
