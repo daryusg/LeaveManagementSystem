@@ -9,6 +9,7 @@ namespace LeaveManagementSystem.Web.MappingProfiles
         public LeaveAllocationAutoMapperProfile() {
             CreateMap<LeaveAllocation, LeaveAllocationVM>()
                 .ForMember(dest => dest.NumberOfDays, opt => opt.MapFrom(src => src.Days)).ReverseMap();
+            CreateMap<ApplicatiionUser, EmployeeListVM>(); //130
 
             CreateMap<Period, PeriodVM>();
         }

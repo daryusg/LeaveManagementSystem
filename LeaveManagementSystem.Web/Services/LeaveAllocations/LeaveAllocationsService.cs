@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagementSystem.Web.Services.LeaveAllocations
@@ -31,9 +32,13 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<LeaveAllocation>> GetAllocatiionsAsync()
+        public async Task<List<LeaveAllocation>> GetAllocatiionsAsync(string? employeeId)
         {
-            var user = await GetUserAsync();
+            if (string.IsNullOrEmpty(employeeId))
+            {
+                employeeId = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
+            }
+
             var currentDate = DateTime.Now;
             //var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
             //var leaveAllocations = await _context.LeaveAllocations
@@ -44,18 +49,21 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             var leaveAllocations = await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
                 .Include(q => q.Period)
-                .Where(q => q.EmployeeId == user.Id && q.Period.EndDate.Year == currentDate.Year)
+                .Where(q => q.EmployeeId == employeeId && q.Period.EndDate.Year == currentDate.Year)
                 .ToListAsync();
 
             return leaveAllocations;
         }
 
-        public async Task<EmployeeAllocationVM> GetEmployeeAllocationsAsync()
+        public async Task<EmployeeAllocationVM> GetEmployeeAllocationsAsync(string? employeeId)
         {
-            var allocations = await GetAllocatiionsAsync();
+            ApplicatiionUser? user = string.IsNullOrEmpty(employeeId)
+                ? await GetUserAsync()
+                : await _userManager.FindByIdAsync(employeeId);
+
+            var allocations = await GetAllocatiionsAsync(employeeId);
             var allocationVmList = _mapper.Map<List<LeaveAllocation>, List<LeaveAllocationVM>>(allocations);
 
-            var user = await GetUserAsync();
             var employeeVm = new EmployeeAllocationVM
             {
                 DateOfBirth = user.DateOfBirth,
@@ -69,9 +77,23 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             return employeeVm;
         }
 
-        private async Task<ApplicatiionUser?> GetUserAsync()
+        public async Task<List<EmployeeListVM>> GetEmployeesAsync()
+        {
+            var users = await GetUsersAsync(Roles.Employee);
+
+            return _mapper.Map<List<EmployeeListVM>>(users);
+        }
+
+        //----------------------------------------------------------------------
+
+        private async Task<ApplicatiionUser> GetUserAsync()
         {
             return await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+        }
+
+        private async Task<IList<ApplicatiionUser>> GetUsersAsync(string Role)
+        {
+            return await _userManager.GetUsersInRoleAsync(Role);
         }
     }
 }
