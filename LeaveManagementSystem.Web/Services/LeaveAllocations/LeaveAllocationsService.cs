@@ -9,8 +9,11 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
     {
         public async Task AllocateLeave(string employeeId)
         {
-            //get all the leave types
-            var leaveTypes = await _context.LeaveTypes.ToListAsync();
+            //get all the unallocated leave types (?? how does sick work? also, how do we allocate multiples holidays?
+            //var leaveTypes = await _context.LeaveTypes.ToListAsync();
+            var leaveTypes = await _context.LeaveTypes
+                .Where(q => !q.LeaveAllocations.Any(x => x.EmployeeId == employeeId))
+                .ToListAsync();
             //get the current period based on the year
             var currentDate = DateTime.Now;
             var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
@@ -19,6 +22,10 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             //foreach leave type, create an alllocation entry
             foreach (var leaveType in leaveTypes)
             {
+                var allocationExists = await AllocationExists(employeeId, period.Id, leaveType.Id);
+                //works, but less efficiently than the "var leaveTypes..." lambda expression (see above)
+                //if (allocationExists)
+                //    continue;
                 var leaveAllocation = new LeaveAllocation
                 {
                     EmployeeId = employeeId,
@@ -63,6 +70,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 
             var allocations = await GetAllocatiionsAsync(employeeId);
             var allocationVmList = _mapper.Map<List<LeaveAllocation>, List<LeaveAllocationVM>>(allocations);
+            var leaveTypesCount = await _context.LeaveTypes.CountAsync();
 
             var employeeVm = new EmployeeAllocationVM
             {
@@ -71,7 +79,8 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Id = user.Id,
-                LeaveAllocations = allocationVmList
+                LeaveAllocations = allocationVmList,
+                IsCompletedAllocation = leaveTypesCount == allocations.Count()
             };
 
             return employeeVm;
@@ -85,6 +94,17 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
         }
 
         //----------------------------------------------------------------------
+
+        //works, but less efficiently than the "var leaveTypes..." lambda expression (see above)
+        private async Task<bool> AllocationExists(string employeeId, int periodId, int leaveTypeId)
+        {
+            var exists = await _context.LeaveAllocations.AnyAsync(q =>
+                q.EmployeeId == employeeId &&
+                q.LeaveTypeId == leaveTypeId &&
+                q.PeriodId == periodId);
+
+            return exists;
+        }
 
         private async Task<ApplicatiionUser> GetUserAsync()
         {

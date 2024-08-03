@@ -17,5 +17,11 @@ namespace LeaveManagementSystem.Web.Controllers
             var employeeVm = await _leaveAllocationService.GetEmployeeAllocationsAsync(employeeId);
             return View(employeeVm);
         }
+
+        public async Task<IActionResult> AllocateLeave(string? employeeId)
+        {
+            await _leaveAllocationService.AllocateLeave(employeeId);
+            return RedirectToAction(nameof(Details), new {employeeId});
+        }
     }
 }

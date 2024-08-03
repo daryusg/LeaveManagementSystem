@@ -4,6 +4,8 @@
 @model EmployeeAllocationVM
 @{
     ViewData["Title"] = "View Allocations";
+    var isAdmin = User.IsInRole(Roles.Administrator);
+    string message = isAdmin ? "There are no allocations." : "You have no allocations. Please contact your administrator.";
 }
 
 <h1>View Allocations for @Model.FirstName @Model.LastName</h1>
@@ -38,6 +40,10 @@
     </dl>
 </div>
 <hr />
+@if(isAdmin && !Model.IsCompletedAllocation)
+{
+    <a asp-action="AllocateLeave" asp-route-employeeId="@Model.Id" class="btn btn-warning">Allocate Leave</a>
+}
 @if (Model.LeaveAllocations.Any())
 {
     <div class="card">
@@ -76,6 +82,6 @@
 else
 {
     <div class="alert alert-warning" role="alert">
-        <h2>You have no allocations. Please contact your administrator.</h2>
+        <h2>@message</h2>
     </div>
 }
