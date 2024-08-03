@@ -18,10 +18,13 @@ namespace LeaveManagementSystem.Web.Controllers
             return View(employeeVm);
         }
 
-        public async Task<IActionResult> AllocateLeave(string? employeeId)
+        [Authorize(Roles = Roles.Administrator)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AllocateLeave(string? Id)
         {
-            await _leaveAllocationService.AllocateLeave(employeeId);
-            return RedirectToAction(nameof(Details), new {employeeId});
+            await _leaveAllocationService.AllocateLeave(Id);
+            return RedirectToAction(nameof(Details), new {employeeId = Id});
         }
     }
 }

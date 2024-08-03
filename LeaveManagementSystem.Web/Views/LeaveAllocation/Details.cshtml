@@ -9,7 +9,10 @@
 }
 
 <h1>View Allocations for @Model.FirstName @Model.LastName</h1>
-
+@if (isAdmin)
+{
+    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+}
 <hr />
 <div>
     <dl class="row">
@@ -42,7 +45,16 @@
 <hr />
 @if(isAdmin && !Model.IsCompletedAllocation)
 {
-    <a asp-action="AllocateLeave" asp-route-employeeId="@Model.Id" class="btn btn-warning">Allocate Leave</a>
+    <div class="alert alert-warning">
+        <p>User is missing some leave allocations.</p>
+    </div>
+    @*<a asp-action="AllocateLeave" asp-route-employeeId="@Model.Id" class="btn btn-warning">Allocate Leave</a>*@
+    <form asp-action="AllocateLeave">
+        <input type="hidden" asp-for="@Model.Id" />
+        <input type="submit" value="Allocate Missing Leave Types" class="btn btn-warning" />
+    </form>
+    <br />
+    <br />
 }
 @if (Model.LeaveAllocations.Any())
 {
