@@ -17,9 +17,9 @@ namespace LeaveManagementSystem.Web.Data
         //-------------------------------------------
         //set up foreign key to the Period table
         public Period Period { get; set; }
-        public  int PeriodId { get; set; }
+        public int PeriodId { get; set; }
         //-------------------------------------------
-        public  int Days { get; set; }
+        public int Days { get; set; }
 
     }
 }

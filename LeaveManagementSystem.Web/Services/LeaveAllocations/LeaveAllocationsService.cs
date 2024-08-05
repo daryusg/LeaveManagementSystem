@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagementSystem.Web.Services.LeaveAllocations
@@ -22,7 +23,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             //foreach leave type, create an alllocation entry
             foreach (var leaveType in leaveTypes)
             {
-                var allocationExists = await AllocationExists(employeeId, period.Id, leaveType.Id);
+                var allocationExists = await AllocationExistsAsync(employeeId, period.Id, leaveType.Id);
                 //works, but less efficiently than the "var leaveTypes..." lambda expression (see above)
                 //if (allocationExists)
                 //    continue;
@@ -39,9 +40,20 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             await _context.SaveChangesAsync();
         }
 
-        public Task EditAllocationAsync(LeaveAllocationEditVM allocationEditVM)
+        public async Task EditAllocationAsync(LeaveAllocationEditVM allocationEditVM)
         {
-            throw new NotImplementedException();
+            //var leaveAllocation = await GetEmployeeAllocationAsync(allocationEditVM.Id) ?? throw new Exception("Leave Allocation record does not exist.");
+            //if (leaveAllocation == null)
+            //{
+            //    throw new Exception("Leave Allocation record does not exist.");
+            //}
+            //leaveAllocation.NumberOfDays = allocationEditVM.NumberOfDays;
+            //option 1: _context.Update(leaveAllocation);
+            //option 2a: _context.Entry(leaveAllocation).State =  EntityState.Modified;
+            //option 2b: await _context.SaveChangesAsync();
+            await _context.LeaveAllocations
+                .Where(q => q.Id == allocationEditVM.Id)
+                .ExecuteUpdateAsync(s => s.SetProperty(e => e.Days, allocationEditVM.NumberOfDays));
         }
 
         public async Task<List<LeaveAllocation>> GetAllocatiionsAsync(string? employeeId)
@@ -111,7 +123,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
         //----------------------------------------------------------------------
 
         //works, but less efficiently than the "var leaveTypes..." lambda expression (see above)
-        private async Task<bool> AllocationExists(string employeeId, int periodId, int leaveTypeId)
+        private async Task<bool> AllocationExistsAsync(string employeeId, int periodId, int leaveTypeId)
         {
             var exists = await _context.LeaveAllocations.AnyAsync(q =>
                 q.EmployeeId == employeeId &&

@@ -11,6 +11,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveTypes
         Task RemoveAsync(int id);
         Task<bool> CheckIfLeaveTypeNameExistsAsync(string name);
         Task<bool> CheckIfLeaveTypeNameExistsForEditAsync(LeaveTypeEditVM leaveTypeEdit);
-        bool LeaveTypeExists(int id);
+        Task<bool> LeaveTypeExistsAsync(int id);
+        Task<bool> DaysExceedMaximumAsync(int leaveTypeID, int days);
     }
 }

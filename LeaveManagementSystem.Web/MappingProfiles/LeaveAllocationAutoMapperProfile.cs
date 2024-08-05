@@ -11,6 +11,7 @@ namespace LeaveManagementSystem.Web.MappingProfiles
                 .ForMember(dest => dest.NumberOfDays, opt => opt.MapFrom(src => src.Days)).ReverseMap();
             CreateMap<LeaveAllocation, LeaveAllocationEditVM>() //133
                 .ForMember(dest => dest.NumberOfDays, opt => opt.MapFrom(src => src.Days)).ReverseMap();
+
             CreateMap<ApplicatiionUser, EmployeeListVM>(); //130
 
             CreateMap<Period, PeriodVM>();

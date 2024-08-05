@@ -113,7 +113,7 @@ namespace LeaveManagementSystem.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_leaveTypesService.LeaveTypeExists(leaveTypeEdit.Id))
+                    if (!await _leaveTypesService.LeaveTypeExistsAsync(leaveTypeEdit.Id))
                     {
                         return NotFound();
                     }

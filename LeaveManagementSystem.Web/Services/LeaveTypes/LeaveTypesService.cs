@@ -72,12 +72,6 @@ public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) :
         await _context.SaveChangesAsync();
     }
 
-
-    public bool LeaveTypeExists(int id)
-    {
-        return _context.LeaveTypes.Any(e => e.Id == id);
-    }
-
     public async Task<bool> CheckIfLeaveTypeNameExistsAsync(string name)
     {
         return await _context.LeaveTypes.AnyAsync(q => q.Name.ToLower().Equals(name.ToLower()));
@@ -89,5 +83,16 @@ public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) :
     {
         return await _context.LeaveTypes.AnyAsync(q => q.Name.ToLower().Equals(leaveTypeEdit.Name.ToLower())
             && q.Id != leaveTypeEdit.Id);
+    }
+
+    public async Task<bool> LeaveTypeExistsAsync(int id)
+    {
+        return await _context.LeaveTypes.AnyAsync(e => e.Id == id);
+    }
+
+    public async Task<bool> DaysExceedMaximumAsync(int leaveTypeID, int days)
+    {
+        var leaveType = await _context.LeaveTypes.FindAsync(leaveTypeID);
+        return leaveType.NumberOfDays < days;
     }
 }

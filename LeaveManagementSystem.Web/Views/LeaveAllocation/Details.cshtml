@@ -43,7 +43,7 @@
     </dl>
 </div>
 <hr />
-@if(isAdmin && !Model.IsCompletedAllocation)
+@if (isAdmin && !Model.IsCompletedAllocation)
 {
     <div class="alert alert-warning">
         <p>User is missing some leave allocations.</p>
@@ -83,7 +83,7 @@
                             <span class="badge rounded-pill bg-warning">@allocation.NumberOfDays</span>
                         </div>
                         <div class="col">
-                            @if(isAdmin)
+                            @if (isAdmin)
                             {
                                 <a class="btn btn-warning" asp-action="EditAllocation" asp-route-Id="@allocation.Id">Edit Allocation</a>
                             }
