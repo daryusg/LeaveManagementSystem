@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Leave Request List";
 }
-<h1>Index</h1>
+<h1>Leave Requests</h1>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Request Leave</a>
@@ -67,9 +67,13 @@
                     <span class="badge rounded-pill bg-@className">@item.LeaveRequestStatus</span>
                 </td>
                 <td>
-                    @if (item.LeaveRequestStatus==LeaveRequestStatusEnum.Pending)
+                    @if (item.LeaveRequestStatus == LeaveRequestStatusEnum.Pending)
                     {
-                        <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger">Cancel</a>
+                        @*<a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger">Cancel</a>*@
+                        <form asp-action="Cancel">
+                            <input type="hidden" asp-for="@item.Id" name="id" /> @*rather tthan post back the model, i can bind to param names*@
+                            <input type="submit" value="Cancel Request" class="btn btn-danger" />
+                        </form>
                     }
                 </td>
             </tr>

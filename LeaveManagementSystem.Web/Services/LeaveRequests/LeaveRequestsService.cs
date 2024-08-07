@@ -61,7 +61,16 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
 
         public async Task CancelLeaveRequestAsync(int leaveRequestId)
         {
-            throw new NotImplementedException();
+            var leaveRequest = await _context.LeaveRequest.FindAsync(leaveRequestId);
+            leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatusEnum.Cancelled;
+
+            //restore allocation days based on request
+            var numberOfDays = leaveRequest.EndDate.DayNumber - leaveRequest.StartDate.DayNumber + 1;
+            var allocationToRestoreDaysTo = await _context.LeaveAllocations
+                .FirstAsync(q => q.LeaveTypeId == leaveRequest.LeaveTypeId && q.EmployeeId != leaveRequest.EmployeeId);
+            allocationToRestoreDaysTo.Days += numberOfDays;
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ret_bool_int> RequestDatesExceedAllocation(LeaveRequestCreateVM model)
