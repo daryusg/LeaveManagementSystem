@@ -8,11 +8,6 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
 {
     public class LeaveRequestsService(ApplicationDbContext _context, IMapper _mapper, UserManager<ApplicatiionUser> _userManager, IHttpContextAccessor _httpContextAccessor) : ILeaveRequestsService //141. dont't forget. once i have the service and the interface, register it (in Program.cs).
     {
-        public async Task CancelLeaveRequestAsync(int leaveRequestId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task CreateLeaveRequestAsync(LeaveRequestCreateVM model)
         {
             //map data to leave request data model
@@ -32,18 +27,39 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             var numberOfDays = model.EndDate.DayNumber - model.StartDate.DayNumber + 1;
             var allocationToDeduct = await _context.LeaveAllocations
                 .FirstAsync(q => q.LeaveTypeId == model.LeaveTypeId && q.EmployeeId == userid);
-            
+
             allocationToDeduct.Days -= numberOfDays; //save #2
 
             await _context.SaveChangesAsync();
         }
 
-        public async Task<EmployeeLeaveRequestListVM> EmployeeLeaveRequestAsync(string employeeId)
+        public Task<EmployeeLeaveRequestListVM> GetAllLeaveRequestsAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<LeaveRequestReadOnlyVM> GetAllLeaveRequestsAsync()
+        public async Task<List<LeaveRequestReadOnlyVM>> GetEmployeeLeaveRequestsAsync()
+        {
+            var userid = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
+            var leaveRequests = await _context.LeaveRequest
+                .Include(q => q.LeaveType)
+                .Where(q => q.EmployeeId == userid)
+                .ToListAsync();
+            //surely I can inject the mapper service to do the following:
+            var model = leaveRequests.Select(q => new LeaveRequestReadOnlyVM
+            {
+                StartDate = q.StartDate,
+                EndDate = q.EndDate,
+                Id = q.Id,
+                LeaveType = q.LeaveType.Name,
+                LeaveRequestStatus = (LeaveRequestStatusEnum)q.LeaveRequestStatusId,
+                NumberOfDays = q.EndDate.DayNumber - q.StartDate.DayNumber + 1
+            }).ToList();
+
+            return (model);
+        }
+
+        public async Task CancelLeaveRequestAsync(int leaveRequestId)
         {
             throw new NotImplementedException();
         }
@@ -53,7 +69,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             var userid = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
             var numberOfDays = model.EndDate.DayNumber - model.StartDate.DayNumber + 1;
             var allocation = await _context.LeaveAllocations
-                .FirstAsync(q => q.LeaveTypeId == model.LeaveTypeId  && q.EmployeeId == userid);
+                .FirstAsync(q => q.LeaveTypeId == model.LeaveTypeId && q.EmployeeId == userid);
             return new ret_bool_int { boolValue = (allocation.Days < numberOfDays), intValue = allocation.Days };
         }
 
