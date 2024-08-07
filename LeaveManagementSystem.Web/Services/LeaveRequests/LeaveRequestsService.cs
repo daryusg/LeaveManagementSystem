@@ -123,5 +123,32 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
         {
             throw new NotImplementedException();
         }
+
+        public async Task<ReviewLeaveRequestVM> GetLeaveRequestForReviewAsync(int leaveRequestId)
+        {
+            var leaveRequest = await _context.LeaveRequest
+                .Include(q => q.LeaveType)
+                .FirstAsync(q => q.Id == leaveRequestId);
+
+            var user = await _userManager.FindByIdAsync(leaveRequest.EmployeeId);
+            var model = new ReviewLeaveRequestVM()
+            {
+                StartDate = leaveRequest.StartDate,
+                EndDate = leaveRequest.EndDate,
+                NumberOfDays = leaveRequest.EndDate.DayNumber - leaveRequest.StartDate.DayNumber + 1,
+                LeaveRequestStatus = (LeaveRequestStatusEnum)leaveRequest.LeaveRequestStatusId,
+                Id = leaveRequest.Id,
+                LeaveType = leaveRequest.LeaveType.Name,
+                Employee = new EmployeeListVM
+                {
+                    Id = leaveRequest.EmployeeId,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                }
+            };
+
+            return model;
+        }
     }
 }
