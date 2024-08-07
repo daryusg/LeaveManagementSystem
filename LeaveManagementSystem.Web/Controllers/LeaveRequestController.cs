@@ -73,7 +73,8 @@ namespace LeaveManagementSystem.Web.Controllers
         //Admin/Super review requests
         public async Task<IActionResult> ListRequests()
         {
-            return View();
+            var model = await _LeaveRequestsService.GetAllLeaveRequestsAsync();
+            return View(model);
         }
 
         //Admin/Super review requests

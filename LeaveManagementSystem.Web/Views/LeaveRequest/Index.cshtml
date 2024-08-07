@@ -69,14 +69,39 @@
                 <td>
                     @if (item.LeaveRequestStatus == LeaveRequestStatusEnum.Pending)
                     {
-                        @*<a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger">Cancel</a>*@
-                        <form asp-action="Cancel">
-                            <input type="hidden" asp-for="@item.Id" name="id" /> @*rather tthan post back the model, i can bind to param names*@
-                            <input type="submit" value="Cancel Request" class="btn btn-danger" />
-                        </form>
+                        <button data-id="@item.Id" class="btn btn-danger cancelBtn">Cancel Request</button>
                     }
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<form id="cancelForm" asp-action="Cancel">
+    <input type="hidden" name="id" id="leaveRequestId" /> @*rather tthan post back the model, i can bind to param names*@
+</form>
+
+@section Scripts{
+    <script>
+        $(function () {
+            $('.cancelBtn').click(
+                function(e){
+                    swal({
+                        title: "Are you sure?",
+                        text: "Are you sure you want to cancel this leave request?",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true
+                    }).then((confirm) => {
+                        if(confirm){
+                            var btn = $(this);
+                            var id = btn.data("id");
+                            $('#leaveRequestId').val(id);
+                            $('#cancelForm').submit();
+                        }
+                    });
+                }
+            )
+        });
+    </script>
+}

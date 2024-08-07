@@ -9,6 +9,7 @@ namespace LeaveManagementSystem.Web.MappingProfiles
         public LeaveRequestAutoMapperProfile()
         {
             CreateMap<LeaveRequestCreateVM, LeaveRequest>();
+            CreateMap<LeaveRequest, LeaveRequestReadOnlyVM>(); //155
         }
     }
 }

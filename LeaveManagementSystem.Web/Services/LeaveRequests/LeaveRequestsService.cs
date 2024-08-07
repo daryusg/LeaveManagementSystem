@@ -3,6 +3,7 @@ using LeaveManagementSystem.Web.Data;
 using LeaveManagementSystem.Web.Models.LeaveRequests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace LeaveManagementSystem.Web.Services.LeaveRequests
 {
@@ -33,9 +34,30 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             await _context.SaveChangesAsync();
         }
 
-        public Task<EmployeeLeaveRequestListVM> GetAllLeaveRequestsAsync()
+        public async Task<EmployeeLeaveRequestListVM> GetAllLeaveRequestsAsync()
         {
-            throw new NotImplementedException();
+            var leaveRequests = await _context.LeaveRequest
+                .Include(q => q.LeaveType)
+                .ToListAsync();
+
+            var model = new EmployeeLeaveRequestListVM
+            {
+                TotalRequests = leaveRequests.Count,
+                ApprovedRequests = leaveRequests.Count(q => q.LeaveRequestStatusId == (int)LeaveRequestStatusEnum.Approved),
+                PendingRequests = leaveRequests.Count(q => q.LeaveRequestStatusId == (int)LeaveRequestStatusEnum.Pending),
+                DeclinedRequests = leaveRequests.Count(q => q.LeaveRequestStatusId == (int)LeaveRequestStatusEnum.Declined),
+                LeaveRequests = leaveRequests.Select(q => new LeaveRequestReadOnlyVM
+                {
+                    StartDate = q.StartDate,
+                    EndDate = q.EndDate,
+                    Id = q.Id,
+                    LeaveType = q.LeaveType.Name,
+                    LeaveRequestStatus = (LeaveRequestStatusEnum)q.LeaveRequestStatusId,
+                    NumberOfDays = q.EndDate.DayNumber - q.StartDate.DayNumber + 1
+                }).ToList()
+            };
+
+            return (model);
         }
 
         public async Task<List<LeaveRequestReadOnlyVM>> GetEmployeeLeaveRequestsAsync()
