@@ -1,0 +1,78 @@
+﻿@model IEnumerable<LeaveRequestReadOnlyVM>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Leave Request List";
+}
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Request Leave</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfDays)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveRequestStatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var className = string.Empty;
+            @switch (item.LeaveRequestStatus)
+            {
+                case LeaveRequestStatusEnum.Pending:
+                    className = "warning";
+                    break;
+                case LeaveRequestStatusEnum.Approved:
+                    className = "success";
+                    break;
+                case LeaveRequestStatusEnum.Declined:
+                    className = "danger";
+                    break;
+                case LeaveRequestStatusEnum.Cancelled:
+                    className = "dark";
+                    break;
+            }
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LeaveType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfDays)
+                </td>
+                <td>
+                    <span class="badge rounded-pill bg-@className">@item.LeaveRequestStatus</span>
+                </td>
+                <td>
+                    @if (item.LeaveRequestStatus==LeaveRequestStatusEnum.Pending)
+                    {
+                        <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger">Cancel</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

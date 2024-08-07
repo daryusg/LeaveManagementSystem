@@ -1,12 +1,15 @@
 ﻿using LeaveManagementSystem.Web.Models.LeaveRequests;
+using LeaveManagementSystem.Web.Services.LeaveRequests;
 using LeaveManagementSystem.Web.Services.LeaveTypes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using static LeaveManagementSystem.Web.Services.LeaveRequests.LeaveRequestsService;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
     [Authorize] //authentication/login is a prerequisite
-    public class LeaveRequestController (ILeaveTypesService _leaveTypesService) : Controller
+    public class LeaveRequestController(ILeaveTypesService _leaveTypesService, ILeaveRequestsService _LeaveRequestsService) : Controller
     {
         //Employee View requests
         public async Task<IActionResult> Index()
@@ -17,7 +20,7 @@ namespace LeaveManagementSystem.Web.Controllers
         //Employee Create request
         public async Task<IActionResult> Create()
         {
-            var leaveTypes =await _leaveTypesService.GetAllAsync();
+            var leaveTypes = await _leaveTypesService.GetAllAsync();
             var leaveTypesList = new SelectList(leaveTypes, "Id", "Name");
             var model = new LeaveRequestCreateVM
             {
@@ -30,13 +33,35 @@ namespace LeaveManagementSystem.Web.Controllers
 
         //Employee Create request
         [HttpPost]
-        public async Task<IActionResult> Create(LeaveRequestCreateVM model /*use VM*/)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(LeaveRequestCreateVM model)
         {
-            return View();
+            //validate that the days don't exceed the allocation
+            ret_bool_int _ret_bool_int = await _LeaveRequestsService.RequestDatesExceedAllocation(model);
+            if (_ret_bool_int.boolValue)
+            {
+                ModelState.AddModelError(string.Empty, "You have exceeded your allocation");
+                ModelState.AddModelError(nameof(model.EndDate), $"The number of requested days ({model.EndDate.DayNumber - model.StartDate.DayNumber + 1}) exceeds the allocation ({_ret_bool_int.intValue}).");
+                //return RedirectToAction(nameof(Index), new { employeeId = model.Employee.Id });
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _LeaveRequestsService.CreateLeaveRequestAsync(model);
+                return RedirectToAction(nameof(Index));
+            }
+            //
+            //note: at this point Model.Leavetypes is null because it's not bound. in Create.cshtml i populate LeaveTypeId with asp-items="@Model.LeaveTypes"
+            //fix: i'll populate model similar to the Create()
+            //
+            var leaveTypes = await _leaveTypesService.GetAllAsync();
+            model.LeaveTypes = new SelectList(leaveTypes, "Id", "Name");
+            return View(model);
         }
 
         //Employee Cancel request
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int createID /*use VM*/)
         {
             return View();
@@ -56,6 +81,7 @@ namespace LeaveManagementSystem.Web.Controllers
 
         //Admin/Super review requests
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Review(/*use VM*/)
         {
             return View();
