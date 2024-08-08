@@ -1,12 +1,14 @@
 ﻿
 using AutoMapper;
+using LeaveManagementSystem.Web.Services.Periods;
+using LeaveManagementSystem.Web.Services.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 {
-    public class LeaveAllocationsService(ApplicationDbContext _context, IHttpContextAccessor _httpContextAccessor, UserManager<ApplicatiionUser> _userManager, IMapper _mapper) : ILeaveAllocationsService
+    public class LeaveAllocationsService(ApplicationDbContext _context, IUserService _userService, IMapper _mapper, IPeriodsService _periodsService) : ILeaveAllocationsService
     {
         public async Task AllocateLeaveAsync(string employeeId)
         {
@@ -17,7 +19,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
                 .ToListAsync();
             //get the current period based on the year
             var currentDate = DateTime.Now;
-            var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
+            var period = await _periodsService.GetCurrentPeriodAsync();
             var monthsRemaining = period.EndDate.Month - currentDate.Month;
             //calculate leave based on the number of months left in the period
             //foreach leave type, create an alllocation entry
@@ -32,8 +34,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
                     EmployeeId = employeeId,
                     LeaveTypeId = leaveType.Id,
                     PeriodId = period.Id,
-                    Days =
-                    Convert.ToInt32(leaveType.NumberOfDays * ((decimal)monthsRemaining / 12))
+                    Days = Convert.ToInt32(leaveType.NumberOfDays * ((decimal)monthsRemaining / 12))
                 };
                 _context.Add(leaveAllocation);
             }
@@ -56,15 +57,28 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
                 .ExecuteUpdateAsync(s => s.SetProperty(e => e.Days, allocationEditVM.NumberOfDays));
         }
 
+        public async Task<LeaveAllocation> GetCurrentAllocationAsync(int leaveTypeId, string employeeId)
+        {
+            var period = await _periodsService.GetCurrentPeriodAsync();
+            var allocation = await _context.LeaveAllocations
+                .FirstAsync(
+                    q => q.LeaveTypeId == leaveTypeId
+                    && q.EmployeeId == employeeId
+                    && q.PeriodId == period.Id
+                );
+            return allocation;
+        }
+
         public async Task<List<LeaveAllocation>> GetAllocatiionsAsync(string? employeeId)
         {
             if (string.IsNullOrEmpty(employeeId))
             {
-                employeeId = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
+                //get the logged in (admin) user's id
+                employeeId = (await _userService.GetLoggedInUserAsync()).Id;//_userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
             }
 
             var currentDate = DateTime.Now;
-            //var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
+            var period = await _periodsService.GetCurrentPeriodAsync();
             //var leaveAllocations = await _context.LeaveAllocations
             //    .Include(q => q.LeaveType)
             //    .Include(q => q.Period)
@@ -73,7 +87,8 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             var leaveAllocations = await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
                 .Include(q => q.Period)
-                .Where(q => q.EmployeeId == employeeId && q.Period.EndDate.Year == currentDate.Year)
+                //.Where(q => q.EmployeeId == employeeId && q.Period.EndDate.Year == currentDate.Year)
+                .Where(q => q.EmployeeId == employeeId && q.Period == period)
                 .ToListAsync();
 
             return leaveAllocations;
@@ -93,8 +108,8 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
         public async Task<EmployeeAllocationVM> GetEmployeeAllocationsAsync(string? employeeId)
         {
             ApplicatiionUser? user = string.IsNullOrEmpty(employeeId)
-                ? await GetUserAsync()
-                : await _userManager.FindByIdAsync(employeeId);
+                ? await _userService.GetLoggedInUserAsync()
+                : await _userService.GetUserByIdAsync(employeeId);
 
             var allocations = await GetAllocatiionsAsync(employeeId);
             var allocationVmList = _mapper.Map<List<LeaveAllocation>, List<LeaveAllocationVM>>(allocations);
@@ -116,13 +131,13 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 
         public async Task<List<EmployeeListVM>> GetEmployeesAsync()
         {
-            var users = await GetUsersAsync(Roles.Employee);
+            var users = await _userService.GetUsersAsync(Roles.Employee);
 
             return _mapper.Map<List<EmployeeListVM>>(users);
         }
+
         //----------------------------------------------------------------------
 
-        //works, but less efficiently than the "var leaveTypes..." lambda expression (see above)
         private async Task<bool> AllocationExistsAsync(string employeeId, int periodId, int leaveTypeId)
         {
             var exists = await _context.LeaveAllocations.AnyAsync(q =>
@@ -133,14 +148,11 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             return exists;
         }
 
+        /*
         private async Task<ApplicatiionUser> GetUserAsync()
         {
             return await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
         }
-
-        private async Task<IList<ApplicatiionUser>> GetUsersAsync(string Role)
-        {
-            return await _userManager.GetUsersInRoleAsync(Role);
-        }
+        */
     }
 }

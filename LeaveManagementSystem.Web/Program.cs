@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using LeaveManagementSystem.Web.Services.LeaveAllocations;
 using LeaveManagementSystem.Web.Services.LeaveRequests;
+using LeaveManagementSystem.Web.Services.Periods;
+using LeaveManagementSystem.Web.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,8 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>(); //90
 builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>(); //122
 builder.Services.AddScoped<ILeaveRequestsService, LeaveRequestsService>(); //141
+builder.Services.AddScoped<IPeriodsService, PeriodsService>(); //161
+builder.Services.AddScoped<IUserService, UserService>(); //161
 builder.Services.AddTransient<IEmailSender, EmailSender>(); //109
 //
 //
