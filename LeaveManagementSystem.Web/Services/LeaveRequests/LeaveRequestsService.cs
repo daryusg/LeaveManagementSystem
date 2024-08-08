@@ -119,9 +119,24 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             return _context.LeaveRequestStatus.First(x => x.Id == id).Name;
         }
 
-        public async Task ReviewLeaveRequestAsync(ReviewLeaveRequestVM model)
+        public async Task ReviewLeaveRequestAsync(int leaveRequestId, bool approved)
         {
-            throw new NotImplementedException();
+            var userid = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
+            var leaveRequest = await _context.LeaveRequest.FindAsync(leaveRequestId);
+            leaveRequest.LeaveRequestStatusId = approved ? (int)LeaveRequestStatusEnum.Approved : (int)LeaveRequestStatusEnum.Declined;
+
+            leaveRequest.ReviewerId = userid;
+
+            if (!approved)
+            {
+                //restore allocation days based on request
+                var numberOfDays = leaveRequest.EndDate.DayNumber - leaveRequest.StartDate.DayNumber + 1;
+                var allocationToRestoreDaysTo = await _context.LeaveAllocations
+                    .FirstAsync(q => q.LeaveTypeId == leaveRequest.LeaveTypeId && q.EmployeeId != leaveRequest.EmployeeId);
+                allocationToRestoreDaysTo.Days += numberOfDays;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ReviewLeaveRequestVM> GetLeaveRequestForReviewAsync(int leaveRequestId)
@@ -139,6 +154,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
                 LeaveRequestStatus = (LeaveRequestStatusEnum)leaveRequest.LeaveRequestStatusId,
                 Id = leaveRequest.Id,
                 LeaveType = leaveRequest.LeaveType.Name,
+                RequestComments = leaveRequest.RequestComments,
                 Employee = new EmployeeListVM
                 {
                     Id = leaveRequest.EmployeeId,
