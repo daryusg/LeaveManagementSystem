@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LeaveManagementSystem.Web.Data;
 using LeaveManagementSystem.Web.Models.LeaveRequests;
+using LeaveManagementSystem.Web.Models.Periods;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -24,10 +25,17 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             //save leave request
             _context.Add(leaveRequest); //save #1
 
+            //get the current period based on the year
+            var currentDate = DateTime.Now;
+            var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
             //deduct allocation days based on request
             var numberOfDays = model.EndDate.DayNumber - model.StartDate.DayNumber + 1;
             var allocationToDeduct = await _context.LeaveAllocations
-                .FirstAsync(q => q.LeaveTypeId == model.LeaveTypeId && q.EmployeeId == userid);
+                .FirstAsync(
+                    q => q.LeaveTypeId == model.LeaveTypeId
+                    && q.EmployeeId == userid
+                    && q.PeriodId == period.Id
+                );
 
             allocationToDeduct.Days -= numberOfDays; //save #2
 
@@ -86,10 +94,17 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             var leaveRequest = await _context.LeaveRequest.FindAsync(leaveRequestId);
             leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatusEnum.Cancelled;
 
+            //get the current period based on the year
+            var currentDate = DateTime.Now;
+            var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
             //restore allocation days based on request
             var numberOfDays = leaveRequest.EndDate.DayNumber - leaveRequest.StartDate.DayNumber + 1;
             var allocationToRestoreDaysTo = await _context.LeaveAllocations
-                .FirstAsync(q => q.LeaveTypeId == leaveRequest.LeaveTypeId && q.EmployeeId != leaveRequest.EmployeeId);
+                .FirstAsync(
+                    q => q.LeaveTypeId == leaveRequest.LeaveTypeId
+                    && q.EmployeeId != leaveRequest.EmployeeId
+                    && q.PeriodId == period.Id
+                );
             allocationToRestoreDaysTo.Days += numberOfDays;
 
             await _context.SaveChangesAsync();
@@ -97,10 +112,18 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
 
         public async Task<ret_bool_int> RequestDatesExceedAllocation(LeaveRequestCreateVM model)
         {
+            //get the current period based on the year
+            var currentDate = DateTime.Now;
+            var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
+
             var userid = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
             var numberOfDays = model.EndDate.DayNumber - model.StartDate.DayNumber + 1;
             var allocation = await _context.LeaveAllocations
-                .FirstAsync(q => q.LeaveTypeId == model.LeaveTypeId && q.EmployeeId == userid);
+                .FirstAsync(
+                    q => q.LeaveTypeId == model.LeaveTypeId
+                    && q.EmployeeId == userid
+                    && q.PeriodId == period.Id
+                );
             return new ret_bool_int { boolValue = (allocation.Days < numberOfDays), intValue = allocation.Days };
         }
 
@@ -121,6 +144,10 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
 
         public async Task ReviewLeaveRequestAsync(int leaveRequestId, bool approved)
         {
+            //get the current period based on the year
+            var currentDate = DateTime.Now;
+            var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
+
             var userid = _userManager.GetUserId(_httpContextAccessor.HttpContext?.User);
             var leaveRequest = await _context.LeaveRequest.FindAsync(leaveRequestId);
             leaveRequest.LeaveRequestStatusId = approved ? (int)LeaveRequestStatusEnum.Approved : (int)LeaveRequestStatusEnum.Declined;
@@ -132,7 +159,11 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
                 //restore allocation days based on request
                 var numberOfDays = leaveRequest.EndDate.DayNumber - leaveRequest.StartDate.DayNumber + 1;
                 var allocationToRestoreDaysTo = await _context.LeaveAllocations
-                    .FirstAsync(q => q.LeaveTypeId == leaveRequest.LeaveTypeId && q.EmployeeId != leaveRequest.EmployeeId);
+                    .FirstAsync(
+                        q => q.LeaveTypeId == leaveRequest.LeaveTypeId
+                        && q.EmployeeId != leaveRequest.EmployeeId
+                        && q.PeriodId == period.Id
+                    );
                 allocationToRestoreDaysTo.Days += numberOfDays;
             }
 

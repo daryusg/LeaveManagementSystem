@@ -3,22 +3,22 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "Leave Requests";
+    ViewData["Title"] = "Leave Request Review";
 }
-<h1>Leave Requests</h1>
+<h1>Leave Request Review</h1>
 
 
 <div class="alert alert-info">
     <h4 class="alert-heading">Requesting Employee</h4>
     <hr />
     <p>
-        <strong>Employee Name:</strong>@Model.Employee.FirstName @Model.Employee.LastName
+        <strong>Name: </strong>@Model.Employee.FirstName @Model.Employee.LastName <br />
+        <strong>Email: </strong>@Model.Employee.Email
     </p>
-    <hr />
 </div>
+<hr />
 
 <div>
-    <hr />
     <dl class="row">
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.LeaveType)
@@ -54,7 +54,9 @@
     <div class="col">
         <button class="btn btn-success approvalBtn" data-id="@Model.Id" data-approved="false">Decline</button>
     </div>
-    <a asp-action="ListRequests" class="btn btn-primary">Back to List</a>
+    <div class="col">
+        <a asp-action="ListRequests" class="btn btn-primary">Back to List</a>
+    </div>
 </div>
 
 <form asp-action="Review" id="approvalForm">
