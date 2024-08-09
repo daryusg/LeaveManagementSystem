@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore;
 namespace LeaveManagementSystem.Web.Controllers
 {
     [Authorize(Roles = Roles.Administrator)] // <--- added
-    public class LeaveTypesController(ILeaveTypesService _leaveTypesService) : Controller
+    public class LeaveTypesController(ILeaveTypesService _leaveTypesService, ILogger<LeaveTypesController> _logger) : Controller
     {
         private const string NameExistsValidationMessage = "Leave Type already exists";
 
         // GET: LeaveTypes
         public async Task<IActionResult> Index()
         {
+            _logger.LogInformation("Loading Leave Types"); //176
             var viewData = await _leaveTypesService.GetAllAsync();
             return View(viewData);
         }
@@ -45,7 +46,6 @@ namespace LeaveManagementSystem.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LeaveTypeCreateVM leaveTypeCreate)
-        //public async Task<IActionResult> Create([Bind("Id,Name,NumberOfDays")] LeaveType leaveType)
         {
             //adding custom validation and model state error
             //prevent duplicates
@@ -53,18 +53,14 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 ModelState.AddModelError(nameof(leaveTypeCreate.Name), NameExistsValidationMessage);
             }
-            //if(leaveTypeCreate.Name.Contains("vacation"))
-            //{
-            //    ModelState.AddModelError(nameof(leaveTypeCreate.Name), "Name cannot contain vacation");
-            //}
 
             if (ModelState.IsValid)
             {
+                _logger.LogWarning("Leave Type creation failed"); //176
                 await _leaveTypesService.CreateAsync(leaveTypeCreate);
                 return RedirectToAction(nameof(Index));
             }
             return View(leaveTypeCreate);
-            //return View(leaveType);
         }
 
         // GET: LeaveTypes/Edit/5

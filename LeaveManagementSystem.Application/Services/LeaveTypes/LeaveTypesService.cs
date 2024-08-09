@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LeaveManagementSystem.Application.Services.LeaveTypes;
 
-public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) : ILeaveTypesService
+public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper, ILogger<LeaveTypesService> _logger) : ILeaveTypesService
 {
     //private readonly ApplicationDbContext _context = context;
     //private readonly IMapper _mapper = mapper;
@@ -55,13 +56,22 @@ public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) :
 
     public async Task EditAsync(LeaveTypeEditVM model)
     {
-        var leaveType = _mapper.Map<LeaveType>(model);
-        _context.Update(leaveType);
-        await _context.SaveChangesAsync();
+        try //174...although removed
+        {
+            var leaveType = _mapper.Map<LeaveType>(model);
+            _context.Update(leaveType);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            //do something special with error then throw back to LeaveTypesController
+            throw;
+        }
     }
 
     public async Task CreateAsync(LeaveTypeCreateVM model)
     {
+        _logger.LogInformation("Creating Leave Type: {leaveTypeName} - {days}", model.Name, model.Days); //176
         var leaveType = _mapper.Map<LeaveType>(model);
         _context.Add(leaveType);
         await _context.SaveChangesAsync();

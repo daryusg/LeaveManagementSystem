@@ -1,5 +1,6 @@
 using LeaveManagementSystem.Application;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,11 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); 171 moved to ApplicationServicesRegistration.cs (LeaveManagementSystem.Application) where we add below.
 DataServicesRegistration.AddDataServices(builder.Services, builder.Configuration);
 ApplicationServicesRegistration.AddApplicationServices(builder.Services); //171
+
+builder.Host.UseSerilog((ctx, config) => 
+    config.WriteTo.Console()
+    .ReadFrom.Configuration(ctx.Configuration)
+);
 
 builder.Services.AddHttpContextAccessor(); //126
 

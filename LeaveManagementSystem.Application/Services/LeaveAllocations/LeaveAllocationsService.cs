@@ -90,10 +90,10 @@ namespace LeaveManagementSystem.Application.Services.LeaveAllocations
 
         public async Task<LeaveAllocationVM> GetEmployeeAllocationAsync(int allocationId)
         {
-            var allocation = _context.LeaveAllocations
+            var allocation = await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
                 .Include(q => q.Employee)
-                .FirstOrDefault(q => q.Id == allocationId);
+                .FirstOrDefaultAsync(q => q.Id == allocationId);
 
             var model = _mapper.Map<LeaveAllocationEditVM>(allocation);
             return model;
