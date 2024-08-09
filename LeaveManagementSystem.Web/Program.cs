@@ -1,26 +1,22 @@
 using LeaveManagementSystem.Application;
-using LeaveManagementSystem.Application.Services.Email;
-using LeaveManagementSystem.Application.Services.LeaveAllocations;
-using LeaveManagementSystem.Application.Services.LeaveRequests;
-using LeaveManagementSystem.Application.Services.LeaveTypes;
-using LeaveManagementSystem.Application.Services.Periods;
-using LeaveManagementSystem.Application.Services.Users;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+/*
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString)); //171 end. similarly to AddApplicationServices below this can be moved to LeaveManagementSystem.Data
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddHttpContextAccessor(); //126
+*/
 //
 //
 //builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); 171 moved to ApplicationServicesRegistration.cs (LeaveManagementSystem.Application) where we add below.
+DataServicesRegistration.AddDataServices(builder.Services, builder.Configuration);
 ApplicationServicesRegistration.AddApplicationServices(builder.Services); //171
+
+builder.Services.AddHttpContextAccessor(); //126
 
 builder.Services.AddAuthorization(options =>
 {
