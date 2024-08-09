@@ -1,6 +1,6 @@
-﻿using LeaveManagementSystem.Web.Data;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
-using Microsoft.AspNetCore.Mvc;
+﻿using LeaveManagementSystem.Application.Models.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -20,7 +20,7 @@ namespace LeaveManagementSystem.Web.Controllers
         public async Task<IActionResult> AllocateLeave(string? id)
         {
             await _leaveAllocationsService.AllocateLeaveAsync(id);
-            return RedirectToAction(nameof(Details), new {employeeId = id});
+            return RedirectToAction(nameof(Details), new { employeeId = id });
         }
 
         [Authorize(Roles = Roles.Administrator)]

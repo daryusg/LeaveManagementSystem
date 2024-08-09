@@ -1,30 +1,26 @@
-using LeaveManagementSystem.Web.Services.Email;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
+using LeaveManagementSystem.Application;
+using LeaveManagementSystem.Application.Services.Email;
+using LeaveManagementSystem.Application.Services.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveRequests;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
+using LeaveManagementSystem.Application.Services.Periods;
+using LeaveManagementSystem.Application.Services.Users;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using LeaveManagementSystem.Web.Services.LeaveAllocations;
-using LeaveManagementSystem.Web.Services.LeaveRequests;
-using LeaveManagementSystem.Web.Services.Periods;
-using LeaveManagementSystem.Web.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString)); //171 end. similarly to AddApplicationServices below this can be moved to LeaveManagementSystem.Data
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddHttpContextAccessor(); //126
 //
 //
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>(); //90
-builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>(); //122
-builder.Services.AddScoped<ILeaveRequestsService, LeaveRequestsService>(); //141
-builder.Services.AddScoped<IPeriodsService, PeriodsService>(); //161
-builder.Services.AddScoped<IUserService, UserService>(); //161
-builder.Services.AddTransient<IEmailSender, EmailSender>(); //109
+//builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); 171 moved to ApplicationServicesRegistration.cs (LeaveManagementSystem.Application) where we add below.
+ApplicationServicesRegistration.AddApplicationServices(builder.Services); //171
 
 builder.Services.AddAuthorization(options =>
 {

@@ -1,10 +1,8 @@
-﻿using LeaveManagementSystem.Web.Models.LeaveRequests;
-using LeaveManagementSystem.Web.Services.LeaveRequests;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
-using Microsoft.AspNetCore.Mvc;
+﻿using LeaveManagementSystem.Application.Models.LeaveRequests;
+using LeaveManagementSystem.Application.Services.LeaveRequests;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
-using static LeaveManagementSystem.Web.Services.LeaveRequests.LeaveRequestsService;
+using static LeaveManagementSystem.Application.Services.LeaveRequests.LeaveRequestsService;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
