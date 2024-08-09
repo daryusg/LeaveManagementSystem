@@ -92,7 +92,7 @@
                             {
                                 <a class="btn btn-warning" asp-action="EditAllocation" asp-route-Id="@allocation.Id">Edit Allocation</a>
                             }
-                            <a asp-controller="LeaveRequest" asp-action="Create" class="btn btn-success">Request Leave</a>
+                            <a asp-controller="LeaveRequest" asp-action="Create" asp-route-leaveTypeId="@allocation.LeaveType.Id" class="btn btn-success">Request Leave</a>
                         </div>
                     </div>
                 </li>

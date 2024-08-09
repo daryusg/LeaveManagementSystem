@@ -19,13 +19,13 @@ namespace LeaveManagementSystem.Web.Controllers
         }
 
         //Employee Create request
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int leaveTypeId)
         {
             var leaveTypes = await _leaveTypesService.GetAllAsync();
-            var leaveTypesList = new SelectList(leaveTypes, "Id", "Name");
+            var leaveTypesList = new SelectList(leaveTypes, "Id", "Name", leaveTypeId);
             var model = new LeaveRequestCreateVM
             {
-                StartDate = DateOnly.FromDateTime(DateTime.Now),
+                StartDate = DateOnly.FromDateTime(DateTime.Now), // need to format to: .ToString("yyyy/mm/dd")
                 EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 LeaveTypes = leaveTypesList
             };
@@ -71,6 +71,9 @@ namespace LeaveManagementSystem.Web.Controllers
         }
 
         //Admin/Super review requests
+        //[Authorize(Roles = $"{Roles.Administrator}, {Roles.Supervisor}")]
+        [Authorize(Policy = "AdminSupervisorOnly")] // 164 see AddAuthorization in Program.cs
+        //[Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> ListRequests()
         {
             var model = await _LeaveRequestsService.GetAllLeaveRequestsAsync();

@@ -7,9 +7,11 @@ namespace LeaveManagementSystem.Web.Models.LeaveRequests
     {
         [Display(Name = "Start Date")]
         [Required]
+        //[DisplayFormat(DataFormatString = "{0:yy-mm-dd}", ApplyFormatInEditMode = true)] //https://stackoverflow.com/questions/18589270/displaying-date-only-mvc
         public DateOnly StartDate { get; set; }
         [Required]
         [Display(Name = "End Date")]
+        //[DisplayFormat(DataFormatString = "{0:yy-mm-dd}", ApplyFormatInEditMode = true)] //https://stackoverflow.com/questions/18589270/displaying-date-only-mvc
         public DateOnly EndDate { get; set; }
         [Required]
         [Display(Name = "Leave Type")]

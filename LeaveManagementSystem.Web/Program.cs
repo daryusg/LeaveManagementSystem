@@ -25,6 +25,16 @@ builder.Services.AddScoped<ILeaveRequestsService, LeaveRequestsService>(); //141
 builder.Services.AddScoped<IPeriodsService, PeriodsService>(); //161
 builder.Services.AddScoped<IUserService, UserService>(); //161
 builder.Services.AddTransient<IEmailSender, EmailSender>(); //109
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminSupervisorOnly", policy =>
+    {
+        policy.RequireRole(Roles.Administrator, Roles.Supervisor); // = x OR y (note: x OR y ie can be in either role)
+        //policy.RequireRole(Roles.Administrator); //x (note: x AND y ie must be in both roles)
+        //policy.RequireRole(Roles.Supervisor);    //y (note: x AND y ie must be in both roles)
+    });
+}); //164
 //
 //
 builder.Services.AddDefaultIdentity<ApplicatiionUser>(options => options.SignIn.RequireConfirmedAccount = true)
