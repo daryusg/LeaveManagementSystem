@@ -8,22 +8,23 @@
     },
     {
       "library": "sweetalert2@11.12.4",
-      "destination": "wwwroot/lib/sweetalert2/"
+      "destination": "wwwroot/sweetalert2/"
     },
     {
-      "library": "jqueryui@1.14.0",
-      "destination": "wwwroot/lib/jqueryui/"
+      "library": "bootstrap@5.3.3",
+      "destination": "wwwroot/bootstrap/"
+    },
+    {
+      "library": "sweetalert@2.1.2",
+      "destination": "wwwroot/sweetalert/"
     },
     {
       "library": "jquery@3.7.1",
       "destination": "wwwroot/lib/jquery/"
     },
     {
-      "library": "sweetalert@2.1.2",
-      "destination": "wwwroot/lib/sweetalert/",
-      "files": [
-        "sweetalert.min.js"
-      ]
+      "library": "jqueryui@1.14.0",
+      "destination": "wwwroot/lib/jqueryui/"
     }
   ]
 }

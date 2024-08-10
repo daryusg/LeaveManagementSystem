@@ -1,3 +1,7 @@
 add-migration <description>
 remove-migration
 update-database
+
+Todo: inform Trevoir Williams:
+Done: xx/08/24 xx:yy
+In 181, circa 3:00 there's a missing section therefore I didn't get the 3:21 error. Luckily for me, at 4:47, you 'undo' that missing section.

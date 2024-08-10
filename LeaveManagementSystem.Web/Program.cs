@@ -35,7 +35,14 @@ builder.Services.AddAuthorization(options =>
 }); //164
 //
 //
-builder.Services.AddDefaultIdentity<ApplicatiionUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//builder.Services.AddDefaultIdentity<ApplicatiionUser>(options => options.SignIn.RequireConfirmedAccount = true) 177
+builder.Services.AddDefaultIdentity<ApplicatiionUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Password.RequiredLength = 3;
+    options.Password.RequiredUniqueChars = 3;
+    options.User.RequireUniqueEmail = true;
+})
     .AddRoles<IdentityRole>() /* <---inserted */
     .AddEntityFrameworkStores<ApplicationDbContext>();
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
