@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\icons\people-28.svg" />
     <None Include="wwwroot\lib\apexcharts\dist\apexcharts.amd.js" />
     <None Include="wwwroot\lib\apexcharts\dist\apexcharts.common.js" />
     <None Include="wwwroot\lib\apexcharts\dist\apexcharts.esm.js" />

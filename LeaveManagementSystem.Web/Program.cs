@@ -1,5 +1,4 @@
 using LeaveManagementSystem.Application;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +16,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 DataServicesRegistration.AddDataServices(builder.Services, builder.Configuration);
 ApplicationServicesRegistration.AddApplicationServices(builder.Services); //171
 
-builder.Host.UseSerilog((ctx, config) => 
+builder.Host.UseSerilog((ctx, config) =>
     config.WriteTo.Console()
     .ReadFrom.Configuration(ctx.Configuration)
 );
