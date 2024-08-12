@@ -21,6 +21,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicatiionUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IWebHostEnvironment _webHostEnvironment; //189
+
 
         public RegisterModel(
             ILeaveAllocationsService leaveAllocationService,
@@ -29,7 +31,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             SignInManager<ApplicatiionUser> signInManager,
             RoleManager<IdentityRole> roleManager, /* added line*/
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IWebHostEnvironment webHostEnvironment/*189*/)
         {
             this._leaveAllocationsService = leaveAllocationService;
             _userManager = userManager;
@@ -39,6 +42,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             this._roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
+            _webHostEnvironment = webHostEnvironment; //189
         }
 
         /// <summary>
@@ -111,6 +115,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             [Display(Name = "Date Of Birth")]
             public DateOnly DateOfBirth { get; set; }
 
+            [Display(Name = "Role")]
             public string RoleName { get; set; }
             public string[] RoleNames { get; set; }
         }
@@ -156,6 +161,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
                     //
                     //
+                    //Add Role(Name)
                     if (Input.RoleName == Roles.Supervisor)
                         await _userManager.AddToRolesAsync(user, [Roles.Employee, Roles.Supervisor]);
                     else
@@ -171,9 +177,19 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                         pageHandler: null,
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    //
+                    //
+                    //grab the template 189
+                    var emailTemplatePath = Path.Combine(_webHostEnvironment.WebRootPath, "templates", "layout_email.html");
+                    var template = await System.IO.File.ReadAllTextAsync(emailTemplatePath);
+                    var messageBody = template
+                        .Replace("{UserName}", $"{Input.FirstName} {Input.LastName}")
+                        .Replace("{MessageContent}", $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email", messageBody);
+                    //
+                    //
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>."); //189
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

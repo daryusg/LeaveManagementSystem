@@ -48,6 +48,7 @@
                                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                                 </div>
                                 <div class="mb-4">
+                                    <label asp-for="Input.RoleName" class="form-label">Role</label>
                                     @foreach (var role in Model.Input.RoleNames)
                                     {
                                         <div class="form-check">
