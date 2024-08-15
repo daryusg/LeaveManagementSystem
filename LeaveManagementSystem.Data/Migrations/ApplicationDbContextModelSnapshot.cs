@@ -102,7 +102,7 @@ namespace LeaveManagementSystem.Data.Migrations
                         {
                             Id = "680742ad-1384-47eb-92ae-26c0050c3b3c",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1a48eb51-7dd2-46b2-83d0-913794c4c232",
+                            ConcurrencyStamp = "0f9517e6-c27d-43e1-a313-2f1f56bca29f",
                             DateOfBirth = new DateOnly(1950, 12, 1),
                             Email = "daryus@europe.com",
                             EmailConfirmed = true,
@@ -110,9 +110,9 @@ namespace LeaveManagementSystem.Data.Migrations
                             LastName = "Admin",
                             LockoutEnabled = false,
                             NormalizedEmail = "DARYUS@EUROPE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAsiPVQvGyfKNJkRrQ6Ad7upDnhy3sfK6QH1qt7fvjtkhAARYOb7rjcP5jknAoxZ7A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEL8B5tFIybo1A7/qzoeF0BfC6i3sN3KFCIDROe7F3cFZ98CbhQWZ5lnKlKNWx/NK3Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "346f87cb-1adc-4146-bc38-210207ff64cd",
+                            SecurityStamp = "960eaa50-a2ee-4cb2-a95a-3ecd139b5da9",
                             TwoFactorEnabled = false,
                             UserName = "daryus@europe.com"
                         });
@@ -147,7 +147,7 @@ namespace LeaveManagementSystem.Data.Migrations
 
                     b.HasIndex("PeriodId");
 
-                    b.ToTable("LeaveAllocations");
+                    b.ToTable("LeaveAllocations", (string)null);
                 });
 
             modelBuilder.Entity("LeaveManagementSystem.Data.LeaveRequest", b =>
@@ -190,7 +190,7 @@ namespace LeaveManagementSystem.Data.Migrations
 
                     b.HasIndex("ReviewerId");
 
-                    b.ToTable("LeaveRequest");
+                    b.ToTable("LeaveRequest", (string)null);
                 });
 
             modelBuilder.Entity("LeaveManagementSystem.Data.LeaveRequestStatus", b =>
@@ -208,7 +208,7 @@ namespace LeaveManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LeaveRequestStatus");
+                    b.ToTable("LeaveRequestStatus", (string)null);
 
                     b.HasData(
                         new
@@ -250,7 +250,7 @@ namespace LeaveManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LeaveTypes");
+                    b.ToTable("LeaveTypes", (string)null);
                 });
 
             modelBuilder.Entity("LeaveManagementSystem.Data.Period", b =>
@@ -273,7 +273,7 @@ namespace LeaveManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Periods");
+                    b.ToTable("Periods", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

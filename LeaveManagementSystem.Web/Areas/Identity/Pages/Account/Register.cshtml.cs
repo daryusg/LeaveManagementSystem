@@ -53,6 +53,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         //public InputModel Input { get; set; }
         public InputModel Input { get; set; } = new();
 
+        public string[] RoleNames { get; set; } //moved here because it's not in the original InputModel
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -115,9 +117,9 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             [Display(Name = "Date Of Birth")]
             public DateOnly DateOfBirth { get; set; }
 
+            [Required]
             [Display(Name = "Role")]
             public string RoleName { get; set; }
-            public string[] RoleNames { get; set; }
         }
 
 
@@ -131,7 +133,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                 .Select(q => q.Name)
                 .Where(q => q != Roles.Administrator)
                 .ToArrayAsync();
-            Input.RoleNames = roles;
+            //Input.RoleNames = roles; //RoleNames is now declared outside of the Input class (see above)
+            RoleNames = roles;
             //
             //
         }
@@ -169,7 +172,11 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                     //
                     //
                     var userId = await _userManager.GetUserIdAsync(user);
-                    await _leaveAllocationsService.AllocateLeaveAsync(userId); //124
+                    try //jic no allocations have been set up
+                    {
+	                    await _leaveAllocationsService.AllocateLeaveAsync(userId); //124
+                    }
+                    catch {}
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -215,7 +222,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                 .Select(q => q.Name)
                 .Where(q => q != Roles.Administrator)
                 .ToArrayAsync();
-            Input.RoleNames = roles;
+            //Input.RoleNames = roles; //RoleNames is now declared outside of the Input class (see above)
+            RoleNames = roles;
             //
             //
             return Page();

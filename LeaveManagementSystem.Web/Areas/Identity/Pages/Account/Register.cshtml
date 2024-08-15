@@ -16,6 +16,8 @@
                                 <img src="~/images/union-member-registration.svg" width="180" alt="">
                             </a>
                             <h2 class="text-center">Create a new account</h2>
+                            <hr />
+                            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                                 <div class="mb-3">
                                     <label asp-for="Input.Email" class="form-label">Email Address</label>
@@ -49,7 +51,8 @@
                                 </div>
                                 <div class="mb-4">
                                     <label asp-for="Input.RoleName" class="form-label">Role</label>
-                                    @foreach (var role in Model.Input.RoleNames)
+                                    @* @foreach (var role in Model.Input.RoleNames)  RoleNames is now declared outside of the Input class (see above) *@
+                                    @foreach (var role in Model.RoleNames)  //RoleNames is now declared outside of the Input class (see above)
                                     {
                                         <div class="form-check">
                                             @* <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"> *@
@@ -59,10 +62,10 @@
                                                 @role
                                             </label>
                                         </div>
-                                        <span asp-validation-for="Input.RoleName" class="text-danger"></span>
                                     }
+                                    <span asp-validation-for="Input.RoleName" class="text-danger"></span>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100 fs-4 mb-4 rounded-2">Sign Up</button>
+                                <button type="submit" id="registerSubmit" class="btn btn-primary w-100 fs-4 mb-4 rounded-2">Sign Up</button>
                                 <div class="d-flex align-items-center justify-content-center">
                                     <p class="fs-4 mb-0 fw-bold">Already have an Account?</p>
                                     <a class="text-primary fw-bold ms-2" asp-page="./Login">Sign In</a>

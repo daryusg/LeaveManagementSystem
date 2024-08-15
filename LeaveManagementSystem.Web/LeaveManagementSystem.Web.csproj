@@ -8,14 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Identity\Data\**" />
     <Compile Remove="wwwroot\lib\simplebar\**" />
     <Compile Remove="wwwroot\sweetalert2\**" />
+    <Content Remove="Areas\Identity\Data\**" />
     <Content Remove="wwwroot\lib\simplebar\**" />
     <Content Remove="wwwroot\sweetalert2\**" />
+    <EmbeddedResource Remove="Areas\Identity\Data\**" />
     <EmbeddedResource Remove="wwwroot\lib\simplebar\**" />
     <EmbeddedResource Remove="wwwroot\sweetalert2\**" />
+    <None Remove="Areas\Identity\Data\**" />
     <None Remove="wwwroot\lib\simplebar\**" />
     <None Remove="wwwroot\sweetalert2\**" />
+    <TypeScriptCompile Remove="Areas\Identity\Data\**" />
     <TypeScriptCompile Remove="wwwroot\lib\simplebar\**" />
     <TypeScriptCompile Remove="wwwroot\sweetalert2\**" />
   </ItemGroup>
@@ -521,11 +526,23 @@
 
   <ItemGroup>
     <PackageReference Include="bootstrap" Version="5.3.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.5.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.4" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.2" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
@@ -540,6 +557,14 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="wwwroot\lib\sweetalert2\sweetalert2.d.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Production.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
