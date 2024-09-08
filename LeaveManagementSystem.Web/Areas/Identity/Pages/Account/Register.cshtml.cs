@@ -8,6 +8,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
+//21/08/24
+using Azure;
+using Azure.Communication.Email;
+using System.Collections.Generic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
 {
@@ -22,6 +28,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IWebHostEnvironment _webHostEnvironment; //189
+        private readonly IConfiguration _configuration; //21/08/24
 
 
         public RegisterModel(
@@ -32,7 +39,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             RoleManager<IdentityRole> roleManager, /* added line*/
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            IWebHostEnvironment webHostEnvironment/*189*/)
+            IWebHostEnvironment webHostEnvironment, /*189*/
+            IConfiguration configuration)
         {
             this._leaveAllocationsService = leaveAllocationService;
             _userManager = userManager;
@@ -174,9 +182,9 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                     var userId = await _userManager.GetUserIdAsync(user);
                     try //jic no allocations have been set up
                     {
-	                    await _leaveAllocationsService.AllocateLeaveAsync(userId); //124
+                        await _leaveAllocationsService.AllocateLeaveAsync(userId); //124
                     }
-                    catch {}
+                    catch { }
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -186,13 +194,77 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
                     //
                     //
+                    //
+                    //var sender = _configuration["EmailSettings:DefaultEmailAddress"]; 08/09/24 kd
+
+                    string sender;
+                    if (Misc.IsAzureEnv()) //08/09/24 kd
+                        sender = Environment.GetEnvironmentVariable("DefaultEmailAddress");
+                    else
+                        sender = _configuration["EmailSettings:DefaultEmailAddress"];
+                    var recipient = Input.Email;
+                    var subject = "Confirm your email";
                     //grab the template 189
                     var emailTemplatePath = Path.Combine(_webHostEnvironment.WebRootPath, "templates", "layout_email.html");
                     var template = await System.IO.File.ReadAllTextAsync(emailTemplatePath);
                     var messageBody = template
                         .Replace("{UserName}", $"{Input.FirstName} {Input.LastName}")
                         .Replace("{MessageContent}", $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email", messageBody);
+
+                    if (!Misc.IsAzureEnv()) //21/08/24 //https://learn.microsoft.com/en-gb/azure/communication-services/quickstarts/email/send-email?pivots=programming-language-csharp&tabs=windows%2Cconnection-string%2Csend-email-and-get-status-async%2Csync-client
+                    {
+                        await _emailSender.SendEmailAsync(recipient, subject, messageBody);
+                    }
+                    else
+                    {
+                        try //wrapped in try to capture Azure failure info 08/09/24 kd
+                        {
+                            string connectionString;
+                            connectionString = Environment.GetEnvironmentVariable("COMMUNICATION_SERVICES_CONNECTION_STRING"); //08/09/24 kd
+                            connectionString = "endpoint=https://communicationservice-666.uk.communication.azure.com/;accesskey=CpmvqlQDn5dr2L5XDeSr0Folsk3R9n5tcuD32BgpJogpuzuqZViHJQQJ99AIACULyCpZGHp7AAAAAZCS4QSS";
+                            EmailClient emailClient = new(connectionString);
+
+
+                            /// Send the email message with WaitUntil.Started
+                            EmailSendOperation emailSendOperation = await emailClient.SendAsync(
+                            //WaitUntil.Started,
+                            WaitUntil.Completed,
+                            senderAddress: sender,
+                            recipientAddress: recipient,
+                            subject: subject,
+                            htmlContent: messageBody);
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelState.AddModelError(string.Empty, ex.Message);
+                            goto error_azure_emailSendOperation;
+                        }
+
+                        /// Call UpdateStatus on the email send operation to poll for the status
+                        /// manually.
+                        //try
+                        //{
+                        //    while (true)
+                        //    {
+                        //        await emailSendOperation.UpdateStatusAsync();
+                        //        if (emailSendOperation.HasCompleted)
+                        //        {
+                        //            break;
+                        //        }
+                        //        await Task.Delay(100);
+                        //    }
+
+                        //    if (emailSendOperation.HasValue)
+                        //    {
+                        //        Console.WriteLine($"Email queued for delivery. Status = {emailSendOperation.Value.Status}");
+                        //    }
+                        //}
+                        //catch (RequestFailedException ex)
+                        //{
+                        //    Console.WriteLine($"Email send failed with Code = {ex.ErrorCode} and Message = {ex.Message}");
+                        //}
+
+                    }
                     //
                     //
                     //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -208,6 +280,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
+            error_azure_emailSendOperation:
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);

@@ -1,8 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var isAzureEnv = Misc.IsAzureEnv();
+    var buildDateTime = DateTime.Now.ToString("ddd dd MMM yyyy HH:mm");
+
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>...to my site created through the <a href="https://www.udemy.com/course/complete-aspnet-core-31-and-entity-framework-development" target="_blank">online course</a> I took from 25 Jul 2024 to 15 Aug 2024 - kevin dyer</p>
+    @*<p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
 </div>
+<p>(dev info)<br />isAzureEnv: @isAzureEnv<br />buildDateTime: @buildDateTime @* ***   development   ***@
