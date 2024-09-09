@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -13,7 +14,9 @@ namespace LeaveManagementSystem.Web.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.AssemblyDateTime = Misc.getAssemblyBuildDateTime().ToString("dd MMM yyyy HH:mm"); //09/09/24 kd
             return View();
+
         }
 
         public IActionResult Privacy()

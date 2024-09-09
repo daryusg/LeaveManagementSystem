@@ -21,7 +21,7 @@
                             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                                 <div class="mb-3">
                                     <label asp-for="Input.Email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" asp-for="Input.Email" aria-describedby="emailHelp">
+                                    <input autofocus="autofocus" type="email" class="form-control" asp-for="Input.Email" aria-describedby="emailHelp">
                                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                                 </div>
                                 <div class="mb-3">

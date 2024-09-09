@@ -123,7 +123,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             [Required] //link(ed) to the data model
             [DataType(DataType.Date)]
             [Display(Name = "Date Of Birth")]
-            public DateOnly DateOfBirth { get; set; }
+            public DateOnly DateOfBirth { get; set; } = DateOnly.FromDateTime(DateTime.Now.AddYears(-16)); //09/09/24 kd
 
             [Required]
             [Display(Name = "Role")]
@@ -219,11 +219,9 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                     {
                         try //wrapped in try to capture Azure failure info 08/09/24 kd
                         {
-                            string connectionString;
-                            connectionString = Environment.GetEnvironmentVariable("COMMUNICATION_SERVICES_CONNECTION_STRING"); //08/09/24 kd
-                            connectionString = "endpoint=https://communicationservice-666.uk.communication.azure.com/;accesskey=CpmvqlQDn5dr2L5XDeSr0Folsk3R9n5tcuD32BgpJogpuzuqZViHJQQJ99AIACULyCpZGHp7AAAAAZCS4QSS";
+                            string connectionString; //08/09/24 kd
+                            connectionString = Environment.GetEnvironmentVariable("COMMUNICATION_SERVICES_CONNECTION_STRING");
                             EmailClient emailClient = new(connectionString);
-
 
                             /// Send the email message with WaitUntil.Started
                             EmailSendOperation emailSendOperation = await emailClient.SendAsync(
